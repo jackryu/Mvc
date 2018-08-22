@@ -24,7 +24,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             var actionDescriptor = GetControllerActionDescriptor(
                 typeof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController),
                 nameof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController.Get));
-            actionDescriptor.Properties[typeof(ApiConventionResult)] = new ApiConventionResult(new[]
+            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new[]
             {
                 new ProducesResponseTypeAttribute(201),
                 new ProducesResponseTypeAttribute(404),
@@ -134,7 +134,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
                 typeof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController),
                 nameof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController.DeleteBase));
 
-            actionDescriptor.Properties[typeof(ApiConventionResult)] = new ApiConventionResult(new[]
+            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new[]
             {
                 new ProducesResponseTypeAttribute(200),
                 new ProducesResponseTypeAttribute(400),
@@ -220,7 +220,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             var actionDescriptor = GetControllerActionDescriptor(
                 typeof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController),
                 nameof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController.DeleteBase));
-            actionDescriptor.Properties[typeof(ApiConventionResult)] = new ApiConventionResult(new IApiResponseMetadataProvider[]
+            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new IApiResponseMetadataProvider[]
             {
                 new ProducesResponseTypeAttribute(201),
                 new ProducesResponseTypeAttribute(404),
@@ -276,7 +276,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             var actionDescriptor = GetControllerActionDescriptor(
                 typeof(GetApiResponseTypes_WithApiConventionMethodAndProducesResponseType),
                 nameof(GetApiResponseTypes_WithApiConventionMethodAndProducesResponseType.Put));
-            actionDescriptor.Properties[typeof(ApiConventionResult)] = new ApiConventionResult(new IApiResponseMetadataProvider[]
+            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new IApiResponseMetadataProvider[]
             {
                 new ProducesResponseTypeAttribute(200),
                 new ProducesResponseTypeAttribute(404),

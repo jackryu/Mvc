@@ -973,7 +973,7 @@ Environment.NewLine + "int b";
             var attributes = new[] { new ApiConventionTypeAttribute(typeof(DefaultApiConventions)) };
 
             // Act
-            ApiBehaviorApplicationModelProvider.DiscoverApiConvention(actionModel, attributes);
+            ApiBehaviorApplicationModelProvider.ReadAmbientMetadata(actionModel, attributes);
 
             // Assert
             Assert.Empty(actionModel.Properties);
@@ -990,7 +990,7 @@ Environment.NewLine + "int b";
             var attributes = new[] { new ApiConventionTypeAttribute(typeof(DefaultApiConventions)) };
 
             // Act
-            ApiBehaviorApplicationModelProvider.DiscoverApiConvention(actionModel, attributes);
+            ApiBehaviorApplicationModelProvider.ReadAmbientMetadata(actionModel, attributes);
 
             // Assert
             Assert.Empty(actionModel.Properties);
@@ -1006,7 +1006,7 @@ Environment.NewLine + "int b";
             var attributes = new[] { new ApiConventionTypeAttribute(typeof(DefaultApiConventions)) };
 
             // Act
-            ApiBehaviorApplicationModelProvider.DiscoverApiConvention(actionModel, attributes);
+            ApiBehaviorApplicationModelProvider.ReadAmbientMetadata(actionModel, attributes);
 
             // Assert
             Assert.Empty(actionModel.Properties);
@@ -1022,14 +1022,14 @@ Environment.NewLine + "int b";
             var attributes = new[] { new ApiConventionTypeAttribute(typeof(DefaultApiConventions)) };
 
             // Act
-            ApiBehaviorApplicationModelProvider.DiscoverApiConvention(actionModel, attributes);
+            ApiBehaviorApplicationModelProvider.ReadAmbientMetadata(actionModel, attributes);
 
             // Assert
             Assert.Collection(
                 actionModel.Properties,
                 kvp =>
                 {
-                    Assert.Equal(typeof(ApiConventionResult), kvp.Key);
+                    Assert.Equal(typeof(KevinData), kvp.Key);
                     Assert.NotNull(kvp.Value);
                 });
         }
@@ -1047,14 +1047,14 @@ Environment.NewLine + "int b";
             var attributes = new[] { new ApiConventionTypeAttribute(typeof(DefaultApiConventions)) };
 
             // Act
-            ApiBehaviorApplicationModelProvider.DiscoverApiConvention(actionModel, attributes);
+            ApiBehaviorApplicationModelProvider.ReadAmbientMetadata(actionModel, attributes);
 
             // Assert
             Assert.Collection(
                 actionModel.Properties,
                 kvp =>
                 {
-                    Assert.Equal(typeof(ApiConventionResult), kvp.Key);
+                    Assert.Equal(typeof(KevinData), kvp.Key);
                     Assert.NotNull(kvp.Value);
                 });
         }

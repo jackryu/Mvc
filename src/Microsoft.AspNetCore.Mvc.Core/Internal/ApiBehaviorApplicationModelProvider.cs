@@ -103,7 +103,7 @@ namespace Microsoft.AspNetCore.Mvc.Internal
 
                     AddMultipartFormDataConsumesAttribute(actionModel);
 
-                    DiscoverApiConvention(actionModel, conventions);
+                    ReadAmbientMetadata(actionModel, conventions);
                 }
             }
         }
@@ -259,18 +259,10 @@ namespace Microsoft.AspNetCore.Mvc.Internal
             return bindingSource;
         }
 
-        internal static void DiscoverApiConvention(ActionModel actionModel, ApiConventionTypeAttribute[] apiConventionAttributes)
+        internal static void ReadAmbientMetadata(ActionModel actionModel, ApiConventionTypeAttribute[] apiConventionAttributes)
         {
-            if (actionModel.Filters.OfType<IApiResponseMetadataProvider>().Any())
-            {
-                // If an action already has providers, don't discover any from conventions.
-                return;
-            }
-
-            if (ApiConventionResult.TryGetApiConvention(actionModel.ActionMethod, apiConventionAttributes, out var result))
-            {
-                actionModel.Properties[typeof(ApiConventionResult)] = result;
-            }
+            var ambientApiMetadata = KevinData.Read(actionModel.ActionMethod, apiConventionAttributes);
+            actionModel.Properties[typeof(KevinData)] = ambientApiMetadata;
         }
 
         private bool ParameterExistsInAnyRoute(ActionModel actionModel, string parameterName)

@@ -17,7 +17,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             var attribute = new ApiConventionTypeAttribute(typeof(DefaultApiConventions));
 
             // Act
-            var result = ApiConventionResult.TryGetApiConvention(method, new[] { attribute }, out var conventionResult);
+            var result = KevinData.TryGetAmbientMetadata(method, new[] { attribute }, out var conventionResult);
 
             // Assert
             Assert.False(result);
@@ -38,7 +38,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             var attribute = new ApiConventionTypeAttribute(typeof(GetApiConvention_ReturnsResultFromConventionType));
 
             // Act
-            var result = ApiConventionResult.TryGetApiConvention(method, new[] { attribute }, out var conventionResult);
+            var result = KevinData.TryGetAmbientMetadata(method, new[] { attribute }, out var conventionResult);
 
             // Assert
             Assert.True(result);
@@ -78,7 +78,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             };
 
             // Act
-            var result = ApiConventionResult.TryGetApiConvention(method, attributes, result: out var conventionResult);
+            var result = KevinData.TryGetAmbientMetadata(method, attributes, result: out var conventionResult);
 
             // Assert
             Assert.True(result);
@@ -103,7 +103,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             var attributes = new[] { new ApiConventionTypeAttribute(typeof(DefaultApiConventions)) };
 
             // Act
-            var result = ApiConventionResult.TryGetApiConvention(method, attributes, out var conventionResult);
+            var result = KevinData.TryGetAmbientMetadata(method, attributes, out var conventionResult);
 
             // Assert
             Assert.True(result);
@@ -123,7 +123,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             var attributes = new[] { new ApiConventionTypeAttribute(typeof(DefaultApiConventions)) };
 
             // Act
-            var result = ApiConventionResult.TryGetApiConvention(method, attributes, out var conventionResult);
+            var result = KevinData.TryGetAmbientMetadata(method, attributes, out var conventionResult);
 
             // Assert
             Assert.True(result);
@@ -146,7 +146,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             };
 
             // Act
-            var result = ApiConventionResult.TryGetApiConvention(method, conventions, out var conventionResult);
+            var result = KevinData.TryGetAmbientMetadata(method, conventions, out var conventionResult);
 
             // Assert
             Assert.True(result);
@@ -170,7 +170,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             };
 
             // Act
-            var result = ApiConventionResult.TryGetApiConvention(method, conventions, out var conventionResult);
+            var result = KevinData.TryGetAmbientMetadata(method, conventions, out var conventionResult);
 
             // Assert
             Assert.True(result);
@@ -194,7 +194,7 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             };
 
             // Act
-            var result = ApiConventionResult.TryGetApiConvention(method, conventions, out var conventionResult);
+            var result = KevinData.TryGetAmbientMetadata(method, conventions, out var conventionResult);
 
             // Assert
             Assert.True(result);

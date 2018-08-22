@@ -37,16 +37,18 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
 
             var runtimeReturnType = GetRuntimeReturnType(declaredReturnType);
 
+            action.Properties.TryGetValue(typeof(KevinData), out var data);
+            var kevinData = (KevinData)data;
+
             var responseMetadataAttributes = GetResponseMetadataAttributes(action);
             if (responseMetadataAttributes.Count == 0 &&
-                action.Properties.TryGetValue(typeof(ApiConventionResult), out var result))
+                kevinData?.ResponseMetadataProviders?.Count != 0)
             {
-                // Action does not have any conventions. Use conventions on it if present.
-                var apiConventionResult = (ApiConventionResult)result;
-                responseMetadataAttributes = apiConventionResult.ResponseMetadataProviders;
+                // Action does not have any IApiResponseMetadataProviders but has some specified via conventions.
+                responseMetadataAttributes = kevinData.ResponseMetadataProviders;
             }
 
-            var apiResponseTypes = GetApiResponseTypes(responseMetadataAttributes, runtimeReturnType);
+            var apiResponseTypes = GetApiResponseTypes(responseMetadataAttributes, runtimeReturnType, kevinData.DefaultErrorType);
             return apiResponseTypes;
         }
 
@@ -69,7 +71,8 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
 
         private ICollection<ApiResponseType> GetApiResponseTypes(
            IReadOnlyList<IApiResponseMetadataProvider> responseMetadataAttributes,
-           Type type)
+           Type type,
+           Type defaultErrorType)
         {
             var results = new Dictionary<int, ApiResponseType>();
 
@@ -93,7 +96,15 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
                             Type = metadataAttribute.Type,
                         };
                     }
-                    else if (metadataAttribute.Type == typeof(void) &&
+                    else if (metadataAttribute.Type == typeof(void) && IsClientError(metadataAttribute.StatusCode))
+                    {
+                        apiResponseType = new ApiResponseType
+                        {
+                            StatusCode = metadataAttribute.StatusCode,
+                            Type = defaultErrorType,
+                        };
+                    }
+                    else if (metadataAttribute.Type == typeof(void) && 
                         type != null &&
                         (metadataAttribute.StatusCode == StatusCodes.Status200OK || metadataAttribute.StatusCode == StatusCodes.Status201Created))
                     {
@@ -123,7 +134,6 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
                     results[apiResponseType.StatusCode] = apiResponseType;
                 }
             }
-
 
             // Set the default status only when no status has already been set explicitly
             if (results.Count == 0 && type != null)
@@ -224,6 +234,11 @@ namespace Microsoft.AspNetCore.Mvc.ApiExplorer
             }
 
             return declaredReturnType;
+        }
+
+        private static bool IsClientError(int statusCode)
+        {
+            return statusCode >= 400 && statusCode < 500;
         }
     }
 }
