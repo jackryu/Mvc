@@ -1,369 +1,369 @@
-﻿// Copyright (c) .NET Foundation. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+﻿//// Copyright (c) .NET Foundation. All rights reserved.
+//// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.Mvc.Internal;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Xunit;
+//using System;
+//using System.Collections.Generic;
+//using System.Linq;
+//using System.Reflection;
+//using System.Threading.Tasks;
+//using Microsoft.AspNetCore.Mvc.Controllers;
+//using Microsoft.AspNetCore.Mvc.Filters;
+//using Microsoft.AspNetCore.Mvc.Formatters;
+//using Microsoft.AspNetCore.Mvc.Internal;
+//using Microsoft.AspNetCore.Mvc.ModelBinding;
+//using Xunit;
 
-namespace Microsoft.AspNetCore.Mvc.ApiExplorer
-{
-    public class ApiResponseTypeProviderTest
-    {
-        [Fact]
-        public void GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresent()
-        {
-            // Arrange
-            var actionDescriptor = GetControllerActionDescriptor(
-                typeof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController),
-                nameof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController.Get));
-            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new[]
-            {
-                new ProducesResponseTypeAttribute(201),
-                new ProducesResponseTypeAttribute(404),
-            });
+//namespace Microsoft.AspNetCore.Mvc.ApiExplorer
+//{
+//    public class ApiResponseTypeProviderTest
+//    {
+//        [Fact]
+//        public void GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresent()
+//        {
+//            // Arrange
+//            var actionDescriptor = GetControllerActionDescriptor(
+//                typeof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController),
+//                nameof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController.Get));
+//            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new[]
+//            {
+//                new ProducesResponseTypeAttribute(201),
+//                new ProducesResponseTypeAttribute(404),
+//            });
 
-            var provider = GetProvider();
+//            var provider = GetProvider();
 
-            // Act
-            var result = provider.GetApiResponseTypes(actionDescriptor);
+//            // Act
+//            var result = provider.GetApiResponseTypes(actionDescriptor);
 
-            // Assert
-            Assert.Collection(
-                result.OrderBy(r => r.StatusCode),
-                responseType =>
-                {
-                    Assert.Equal(200, responseType.StatusCode);
-                    Assert.Equal(typeof(BaseModel), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Collection(
-                        responseType.ApiResponseFormats,
-                        format => Assert.Equal("application/json", format.MediaType));
-                },
-                responseType =>
-                {
-                    Assert.Equal(301, responseType.StatusCode);
-                    Assert.Equal(typeof(void), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Empty(responseType.ApiResponseFormats);
-                },
-                responseType =>
-                {
-                    Assert.Equal(404, responseType.StatusCode);
-                    Assert.Equal(typeof(void), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Empty(responseType.ApiResponseFormats);
-                });
-        }
+//            // Assert
+//            Assert.Collection(
+//                result.OrderBy(r => r.StatusCode),
+//                responseType =>
+//                {
+//                    Assert.Equal(200, responseType.StatusCode);
+//                    Assert.Equal(typeof(BaseModel), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Collection(
+//                        responseType.ApiResponseFormats,
+//                        format => Assert.Equal("application/json", format.MediaType));
+//                },
+//                responseType =>
+//                {
+//                    Assert.Equal(301, responseType.StatusCode);
+//                    Assert.Equal(typeof(void), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Empty(responseType.ApiResponseFormats);
+//                },
+//                responseType =>
+//                {
+//                    Assert.Equal(404, responseType.StatusCode);
+//                    Assert.Equal(typeof(void), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Empty(responseType.ApiResponseFormats);
+//                });
+//        }
 
-        [ApiConventionType(typeof(DefaultApiConventions))]
-        public class GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController : ControllerBase
-        {
-            [Produces(typeof(BaseModel))]
-            [ProducesResponseType(301)]
-            [ProducesResponseType(404)]
-            public Task<ActionResult<BaseModel>> Get(int id) => null;
-        }
+//        [ApiConventionType(typeof(DefaultApiConventions))]
+//        public class GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController : ControllerBase
+//        {
+//            [Produces(typeof(BaseModel))]
+//            [ProducesResponseType(301)]
+//            [ProducesResponseType(404)]
+//            public Task<ActionResult<BaseModel>> Get(int id) => null;
+//        }
 
-        [Fact]
-        public void GetApiResponseTypes_CombinesFilters()
-        {
-            // Arrange
-            var filterDescriptors = new[]
-            {
-                new FilterDescriptor(new ProducesResponseTypeAttribute(400), FilterScope.Global),
-                new FilterDescriptor(new ProducesResponseTypeAttribute(typeof(object), 201), FilterScope.Controller),
-                new FilterDescriptor(new ProducesResponseTypeAttribute(typeof(ProblemDetails), 400), FilterScope.Controller),
-                new FilterDescriptor(new ProducesResponseTypeAttribute(typeof(BaseModel), 201), FilterScope.Action),
-                new FilterDescriptor(new ProducesResponseTypeAttribute(404), FilterScope.Action),
-            };
+//        [Fact]
+//        public void GetApiResponseTypes_CombinesFilters()
+//        {
+//            // Arrange
+//            var filterDescriptors = new[]
+//            {
+//                new FilterDescriptor(new ProducesResponseTypeAttribute(400), FilterScope.Global),
+//                new FilterDescriptor(new ProducesResponseTypeAttribute(typeof(object), 201), FilterScope.Controller),
+//                new FilterDescriptor(new ProducesResponseTypeAttribute(typeof(ProblemDetails), 400), FilterScope.Controller),
+//                new FilterDescriptor(new ProducesResponseTypeAttribute(typeof(BaseModel), 201), FilterScope.Action),
+//                new FilterDescriptor(new ProducesResponseTypeAttribute(404), FilterScope.Action),
+//            };
 
-            var actionDescriptor = new ControllerActionDescriptor
-            {
-                FilterDescriptors = filterDescriptors,
-                MethodInfo = typeof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController).GetMethod(nameof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController.Get)),
-            };
+//            var actionDescriptor = new ControllerActionDescriptor
+//            {
+//                FilterDescriptors = filterDescriptors,
+//                MethodInfo = typeof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController).GetMethod(nameof(GetApiResponseTypes_ReturnsResponseTypesFromActionIfPresentController.Get)),
+//            };
 
-            var provider = GetProvider();
+//            var provider = GetProvider();
 
-            // Act
-            var result = provider.GetApiResponseTypes(actionDescriptor);
+//            // Act
+//            var result = provider.GetApiResponseTypes(actionDescriptor);
 
-            // Assert
-            Assert.Collection(
-                result.OrderBy(r => r.StatusCode),
-                responseType =>
-                {
-                    Assert.Equal(201, responseType.StatusCode);
-                    Assert.Equal(typeof(BaseModel), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Collection(
-                        responseType.ApiResponseFormats,
-                        format => Assert.Equal("application/json", format.MediaType));
-                },
-                responseType =>
-                {
-                    Assert.Equal(400, responseType.StatusCode);
-                    Assert.Equal(typeof(ProblemDetails), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Collection(
-                        responseType.ApiResponseFormats,
-                        format => Assert.Equal("application/json", format.MediaType));
-                },
-                responseType =>
-                {
-                    Assert.Equal(404, responseType.StatusCode);
-                    Assert.Equal(typeof(void), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Empty(responseType.ApiResponseFormats);
-                });
-        }
+//            // Assert
+//            Assert.Collection(
+//                result.OrderBy(r => r.StatusCode),
+//                responseType =>
+//                {
+//                    Assert.Equal(201, responseType.StatusCode);
+//                    Assert.Equal(typeof(BaseModel), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Collection(
+//                        responseType.ApiResponseFormats,
+//                        format => Assert.Equal("application/json", format.MediaType));
+//                },
+//                responseType =>
+//                {
+//                    Assert.Equal(400, responseType.StatusCode);
+//                    Assert.Equal(typeof(ProblemDetails), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Collection(
+//                        responseType.ApiResponseFormats,
+//                        format => Assert.Equal("application/json", format.MediaType));
+//                },
+//                responseType =>
+//                {
+//                    Assert.Equal(404, responseType.StatusCode);
+//                    Assert.Equal(typeof(void), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Empty(responseType.ApiResponseFormats);
+//                });
+//        }
 
-        [Fact]
-        public void GetApiResponseTypes_ReturnsResponseTypesFromApiConventionItem()
-        {
-            // Arrange
-            var actionDescriptor = GetControllerActionDescriptor(
-                typeof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController),
-                nameof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController.DeleteBase));
+//        [Fact]
+//        public void GetApiResponseTypes_ReturnsResponseTypesFromApiConventionItem()
+//        {
+//            // Arrange
+//            var actionDescriptor = GetControllerActionDescriptor(
+//                typeof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController),
+//                nameof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController.DeleteBase));
 
-            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new[]
-            {
-                new ProducesResponseTypeAttribute(200),
-                new ProducesResponseTypeAttribute(400),
-                new ProducesResponseTypeAttribute(404),
-            });
+//            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new[]
+//            {
+//                new ProducesResponseTypeAttribute(200),
+//                new ProducesResponseTypeAttribute(400),
+//                new ProducesResponseTypeAttribute(404),
+//            });
 
-            var provider = GetProvider();
+//            var provider = GetProvider();
 
-            // Act
-            var result = provider.GetApiResponseTypes(actionDescriptor);
+//            // Act
+//            var result = provider.GetApiResponseTypes(actionDescriptor);
 
-            // Assert
-            Assert.Collection(
-               result.OrderBy(r => r.StatusCode),
-               responseType =>
-               {
-                   Assert.Equal(200, responseType.StatusCode);
-                   Assert.Equal(typeof(BaseModel), responseType.Type);
-                   Assert.False(responseType.IsDefaultResponse);
-                   Assert.Collection(
-                        responseType.ApiResponseFormats,
-                        format => Assert.Equal("application/json", format.MediaType));
-               },
-               responseType =>
-               {
-                   Assert.Equal(400, responseType.StatusCode);
-                   Assert.Equal(typeof(void), responseType.Type);
-                   Assert.False(responseType.IsDefaultResponse);
-                   Assert.Empty(responseType.ApiResponseFormats);
-               },
-               responseType =>
-               {
-                   Assert.Equal(404, responseType.StatusCode);
-                   Assert.Equal(typeof(void), responseType.Type);
-                   Assert.False(responseType.IsDefaultResponse);
-                   Assert.Empty(responseType.ApiResponseFormats);
-               });
-        }
+//            // Assert
+//            Assert.Collection(
+//               result.OrderBy(r => r.StatusCode),
+//               responseType =>
+//               {
+//                   Assert.Equal(200, responseType.StatusCode);
+//                   Assert.Equal(typeof(BaseModel), responseType.Type);
+//                   Assert.False(responseType.IsDefaultResponse);
+//                   Assert.Collection(
+//                        responseType.ApiResponseFormats,
+//                        format => Assert.Equal("application/json", format.MediaType));
+//               },
+//               responseType =>
+//               {
+//                   Assert.Equal(400, responseType.StatusCode);
+//                   Assert.Equal(typeof(void), responseType.Type);
+//                   Assert.False(responseType.IsDefaultResponse);
+//                   Assert.Empty(responseType.ApiResponseFormats);
+//               },
+//               responseType =>
+//               {
+//                   Assert.Equal(404, responseType.StatusCode);
+//                   Assert.Equal(typeof(void), responseType.Type);
+//                   Assert.False(responseType.IsDefaultResponse);
+//                   Assert.Empty(responseType.ApiResponseFormats);
+//               });
+//        }
 
-        [ApiConventionType(typeof(DefaultApiConventions))]
-        public class GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController : ControllerBase
-        {
-            public Task<ActionResult<BaseModel>> DeleteBase(int id) => null;
-        }
+//        [ApiConventionType(typeof(DefaultApiConventions))]
+//        public class GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController : ControllerBase
+//        {
+//            public Task<ActionResult<BaseModel>> DeleteBase(int id) => null;
+//        }
 
-        [Fact]
-        public void GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatch()
-        {
-            // Arrange
-            var actionDescriptor = GetControllerActionDescriptor(
-                typeof(GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatchController),
-                nameof(GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatchController.PostModel));
+//        [Fact]
+//        public void GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatch()
+//        {
+//            // Arrange
+//            var actionDescriptor = GetControllerActionDescriptor(
+//                typeof(GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatchController),
+//                nameof(GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatchController.PostModel));
 
-            var provider = GetProvider();
+//            var provider = GetProvider();
 
-            // Act
-            var result = provider.GetApiResponseTypes(actionDescriptor);
+//            // Act
+//            var result = provider.GetApiResponseTypes(actionDescriptor);
 
-            // Assert
-            Assert.Collection(
-               result.OrderBy(r => r.StatusCode),
-               responseType =>
-               {
-                   Assert.Equal(200, responseType.StatusCode);
-                   Assert.Equal(typeof(BaseModel), responseType.Type);
-                   Assert.False(responseType.IsDefaultResponse);
-                   Assert.Collection(
-                        responseType.ApiResponseFormats,
-                        format => Assert.Equal("application/json", format.MediaType));
-               });
-        }
+//            // Assert
+//            Assert.Collection(
+//               result.OrderBy(r => r.StatusCode),
+//               responseType =>
+//               {
+//                   Assert.Equal(200, responseType.StatusCode);
+//                   Assert.Equal(typeof(BaseModel), responseType.Type);
+//                   Assert.False(responseType.IsDefaultResponse);
+//                   Assert.Collection(
+//                        responseType.ApiResponseFormats,
+//                        format => Assert.Equal("application/json", format.MediaType));
+//               });
+//        }
 
-        [ApiConventionType(typeof(DefaultApiConventions))]
-        public class GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatchController : ControllerBase
-        {
-            public Task<ActionResult<BaseModel>> PostModel(int id, BaseModel model) => null;
-        }
+//        [ApiConventionType(typeof(DefaultApiConventions))]
+//        public class GetApiResponseTypes_ReturnsDefaultResultsIfNoConventionsMatchController : ControllerBase
+//        {
+//            public Task<ActionResult<BaseModel>> PostModel(int id, BaseModel model) => null;
+//        }
 
-        [Fact]
-        public void GetApiResponseTypes_ReturnsDefaultProblemResponse()
-        {
-            // Arrange
-            var actionDescriptor = GetControllerActionDescriptor(
-                typeof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController),
-                nameof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController.DeleteBase));
-            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new IApiResponseMetadataProvider[]
-            {
-                new ProducesResponseTypeAttribute(201),
-                new ProducesResponseTypeAttribute(404),
-                new ProducesDefaultResponseTypeAttribute(typeof(SerializableError)),
-            });
+//        [Fact]
+//        public void GetApiResponseTypes_ReturnsDefaultProblemResponse()
+//        {
+//            // Arrange
+//            var actionDescriptor = GetControllerActionDescriptor(
+//                typeof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController),
+//                nameof(GetApiResponseTypes_ReturnsResponseTypesFromDefaultConventionsController.DeleteBase));
+//            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new IApiResponseMetadataProvider[]
+//            {
+//                new ProducesResponseTypeAttribute(201),
+//                new ProducesResponseTypeAttribute(404),
+//                new ProducesDefaultResponseTypeAttribute(typeof(SerializableError)),
+//            });
 
-            var provider = GetProvider();
+//            var provider = GetProvider();
 
-            // Act
-            var result = provider.GetApiResponseTypes(actionDescriptor);
+//            // Act
+//            var result = provider.GetApiResponseTypes(actionDescriptor);
 
-            // Assert
-            Assert.Collection(
-                result.OrderBy(r => r.StatusCode),
-                responseType =>
-                {
-                    Assert.True(responseType.IsDefaultResponse);
-                    Assert.Equal(typeof(SerializableError), responseType.Type);
-                    Assert.Collection(
-                        responseType.ApiResponseFormats,
-                        format => Assert.Equal("application/json", format.MediaType));
-                },
-                responseType =>
-                {
-                    Assert.Equal(201, responseType.StatusCode);
-                    Assert.Equal(typeof(BaseModel), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Collection(
-                        responseType.ApiResponseFormats,
-                        format => Assert.Equal("application/json", format.MediaType));
-                },
-                responseType =>
-                {
-                    Assert.Equal(404, responseType.StatusCode);
-                    Assert.Equal(typeof(void), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Empty(responseType.ApiResponseFormats);
-                });
-        }
+//            // Assert
+//            Assert.Collection(
+//                result.OrderBy(r => r.StatusCode),
+//                responseType =>
+//                {
+//                    Assert.True(responseType.IsDefaultResponse);
+//                    Assert.Equal(typeof(SerializableError), responseType.Type);
+//                    Assert.Collection(
+//                        responseType.ApiResponseFormats,
+//                        format => Assert.Equal("application/json", format.MediaType));
+//                },
+//                responseType =>
+//                {
+//                    Assert.Equal(201, responseType.StatusCode);
+//                    Assert.Equal(typeof(BaseModel), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Collection(
+//                        responseType.ApiResponseFormats,
+//                        format => Assert.Equal("application/json", format.MediaType));
+//                },
+//                responseType =>
+//                {
+//                    Assert.Equal(404, responseType.StatusCode);
+//                    Assert.Equal(typeof(void), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Empty(responseType.ApiResponseFormats);
+//                });
+//        }
 
-        public class GetApiResponseTypes_WithApiConventionMethodAndProducesResponseType : ControllerBase
-        {
-            [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
-            [ProducesResponseType(201)]
-            [ProducesResponseType(404)]
-            public Task<ActionResult<BaseModel>> Put(int id, BaseModel model) => null;
-        }
+//        public class GetApiResponseTypes_WithApiConventionMethodAndProducesResponseType : ControllerBase
+//        {
+//            [ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+//            [ProducesResponseType(201)]
+//            [ProducesResponseType(404)]
+//            public Task<ActionResult<BaseModel>> Put(int id, BaseModel model) => null;
+//        }
 
-        [Fact]
-        public void GetApiResponseTypes_ReturnsValuesFromProducesResponseType_IfApiConventionMethodAndAttributesAreSpecified()
-        {
-            // Arrange
-            var actionDescriptor = GetControllerActionDescriptor(
-                typeof(GetApiResponseTypes_WithApiConventionMethodAndProducesResponseType),
-                nameof(GetApiResponseTypes_WithApiConventionMethodAndProducesResponseType.Put));
-            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new IApiResponseMetadataProvider[]
-            {
-                new ProducesResponseTypeAttribute(200),
-                new ProducesResponseTypeAttribute(404),
-                new ProducesDefaultResponseTypeAttribute(),
-            });
+//        [Fact]
+//        public void GetApiResponseTypes_ReturnsValuesFromProducesResponseType_IfApiConventionMethodAndAttributesAreSpecified()
+//        {
+//            // Arrange
+//            var actionDescriptor = GetControllerActionDescriptor(
+//                typeof(GetApiResponseTypes_WithApiConventionMethodAndProducesResponseType),
+//                nameof(GetApiResponseTypes_WithApiConventionMethodAndProducesResponseType.Put));
+//            actionDescriptor.Properties[typeof(KevinData)] = new KevinData(new IApiResponseMetadataProvider[]
+//            {
+//                new ProducesResponseTypeAttribute(200),
+//                new ProducesResponseTypeAttribute(404),
+//                new ProducesDefaultResponseTypeAttribute(),
+//            });
 
-            var provider = GetProvider();
+//            var provider = GetProvider();
 
-            // Act
-            var result = provider.GetApiResponseTypes(actionDescriptor);
+//            // Act
+//            var result = provider.GetApiResponseTypes(actionDescriptor);
 
-            // Assert
-            Assert.Collection(
-                result.OrderBy(r => r.StatusCode),
-                responseType =>
-                {
-                    Assert.Equal(201, responseType.StatusCode);
-                    Assert.Equal(typeof(BaseModel), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Collection(
-                        responseType.ApiResponseFormats,
-                        format => Assert.Equal("application/json", format.MediaType));
-                },
-                responseType =>
-                {
-                    Assert.Equal(404, responseType.StatusCode);
-                    Assert.Equal(typeof(void), responseType.Type);
-                    Assert.False(responseType.IsDefaultResponse);
-                    Assert.Empty(responseType.ApiResponseFormats);
-                });
-        }
+//            // Assert
+//            Assert.Collection(
+//                result.OrderBy(r => r.StatusCode),
+//                responseType =>
+//                {
+//                    Assert.Equal(201, responseType.StatusCode);
+//                    Assert.Equal(typeof(BaseModel), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Collection(
+//                        responseType.ApiResponseFormats,
+//                        format => Assert.Equal("application/json", format.MediaType));
+//                },
+//                responseType =>
+//                {
+//                    Assert.Equal(404, responseType.StatusCode);
+//                    Assert.Equal(typeof(void), responseType.Type);
+//                    Assert.False(responseType.IsDefaultResponse);
+//                    Assert.Empty(responseType.ApiResponseFormats);
+//                });
+//        }
 
-        private static ApiResponseTypeProvider GetProvider()
-        {
-            var mvcOptions = new MvcOptions
-            {
-                OutputFormatters = { new TestOutputFormatter() },
-            };
-            var provider = new ApiResponseTypeProvider(new EmptyModelMetadataProvider(), new ActionResultTypeMapper(), mvcOptions);
-            return provider;
-        }
+//        private static ApiResponseTypeProvider GetProvider()
+//        {
+//            var mvcOptions = new MvcOptions
+//            {
+//                OutputFormatters = { new TestOutputFormatter() },
+//            };
+//            var provider = new ApiResponseTypeProvider(new EmptyModelMetadataProvider(), new ActionResultTypeMapper(), mvcOptions);
+//            return provider;
+//        }
 
-        private static ControllerActionDescriptor GetControllerActionDescriptor(Type type, string name)
-        {
-            var method = type.GetMethod(name);
-            var actionDescriptor = new ControllerActionDescriptor
-            {
-                MethodInfo = method,
-                FilterDescriptors = new List<FilterDescriptor>(),
-            };
+//        private static ControllerActionDescriptor GetControllerActionDescriptor(Type type, string name)
+//        {
+//            var method = type.GetMethod(name);
+//            var actionDescriptor = new ControllerActionDescriptor
+//            {
+//                MethodInfo = method,
+//                FilterDescriptors = new List<FilterDescriptor>(),
+//            };
 
-            foreach (var filterAttribute in method.GetCustomAttributes().OfType<IFilterMetadata>())
-            {
-                actionDescriptor.FilterDescriptors.Add(new FilterDescriptor(filterAttribute, FilterScope.Action));
-            }
+//            foreach (var filterAttribute in method.GetCustomAttributes().OfType<IFilterMetadata>())
+//            {
+//                actionDescriptor.FilterDescriptors.Add(new FilterDescriptor(filterAttribute, FilterScope.Action));
+//            }
 
-            return actionDescriptor;
-        }
+//            return actionDescriptor;
+//        }
 
-        public class BaseModel { }
+//        public class BaseModel { }
 
-        public class DerivedModel : BaseModel { }
+//        public class DerivedModel : BaseModel { }
 
-        public class TestController
-        {
-            public ActionResult<DerivedModel> GetUser(int id) => null;
+//        public class TestController
+//        {
+//            public ActionResult<DerivedModel> GetUser(int id) => null;
 
-            public ActionResult<DerivedModel> GetUserLocation(int a, int b) => null;
+//            public ActionResult<DerivedModel> GetUserLocation(int a, int b) => null;
 
-            public ActionResult<DerivedModel> PutModel(string userId, DerivedModel model) => null;
-        }
+//            public ActionResult<DerivedModel> PutModel(string userId, DerivedModel model) => null;
+//        }
 
-        private class TestOutputFormatter : OutputFormatter
-        {
-            public TestOutputFormatter()
-            {
-                SupportedMediaTypes.Add(new Net.Http.Headers.MediaTypeHeaderValue("application/json"));
-            }
+//        private class TestOutputFormatter : OutputFormatter
+//        {
+//            public TestOutputFormatter()
+//            {
+//                SupportedMediaTypes.Add(new Net.Http.Headers.MediaTypeHeaderValue("application/json"));
+//            }
 
-            public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context) => Task.CompletedTask;
-        }
+//            public override Task WriteResponseBodyAsync(OutputFormatterWriteContext context) => Task.CompletedTask;
+//        }
 
-        public static class SearchApiConventions
-        {
-            [ProducesResponseType(206)]
-            [ProducesResponseType(406)]
-            public static void Search(object searchTerm, int page) { }
-        }
-    }
-}
+//        public static class SearchApiConventions
+//        {
+//            [ProducesResponseType(206)]
+//            [ProducesResponseType(406)]
+//            public static void Search(object searchTerm, int page) { }
+//        }
+//    }
+//}
