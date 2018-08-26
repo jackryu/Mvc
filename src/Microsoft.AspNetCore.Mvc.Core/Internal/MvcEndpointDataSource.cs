@@ -134,7 +134,8 @@ namespace Microsoft.AspNetCore.Mvc.Internal
                                         }
 
                                         // Replace parameter with literal value
-                                        segmentParts[j] = RoutePatternFactory.LiteralPart(action.RouteValues[parameterPart.Name]);
+                                        var parameterRouteValue = ResolveParameterValue(action, endpointInfo, parameterPart.Name);
+                                        segmentParts[j] = RoutePatternFactory.LiteralPart(parameterRouteValue);
                                     }
                                 }
 
@@ -188,6 +189,26 @@ namespace Microsoft.AspNetCore.Mvc.Internal
 
                 return rawPattern;
             }
+        }
+
+        private static string ResolveParameterValue(ActionDescriptor action, MvcEndpointInfo endpointInfo, string parameterName)
+        {
+            var parameterRouteValue = action.RouteValues[parameterName];
+
+            // Check if the parameter has a transformer policy
+            // Use the first transformer policy
+            if (endpointInfo.ParameterPolicies.TryGetValue(parameterName, out var parameterPolicies))
+            {
+                for (int i = 0; i < parameterPolicies.Count; i++)
+                {
+                    if (parameterPolicies[i] is ParameterTransformer parameterTransformer)
+                    {
+                        return parameterTransformer.Transform(parameterRouteValue);
+                    }
+                }
+            }
+
+            return parameterRouteValue;
         }
 
         private bool IsMvcParameter(string name)
@@ -284,11 +305,12 @@ namespace Microsoft.AspNetCore.Mvc.Internal
                 {
                     // Check that the value matches against constraints on that parameter
                     // e.g. For {controller:regex((Home|Login))} the controller value must match the regex
-                    if (endpointInfo.Constraints.TryGetValue(routeKey, out var constraints))
+                    if (endpointInfo.ParameterPolicies.TryGetValue(routeKey, out var parameterPolicies))
                     {
-                        foreach (var constraint in constraints)
+                        foreach (var policy in parameterPolicies)
                         {
-                            if (!constraint.Match(_httpContextInstance, NullRouter.Instance, routeKey, new RouteValueDictionary(action.RouteValues), RouteDirection.IncomingRequest))
+                            if (policy is IRouteConstraint constraint
+                                && !constraint.Match(_httpContextInstance, NullRouter.Instance, routeKey, new RouteValueDictionary(action.RouteValues), RouteDirection.IncomingRequest))
                             {
                                 // Did not match constraint
                                 return false;
